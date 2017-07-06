@@ -1,0 +1,83 @@
+{
+    "rules": {
+        "quotemark": [
+            true,
+            "single"
+        ],
+        "cyclomatic-complexity": [
+            true,
+            10
+        ],
+        "newline-before-return": false,
+        "no-parameter-properties": false,
+        "no-unused-variable": false,
+        "arrow-return-shorthand": true,
+        "comment-format": [
+            true,
+            "check-space"
+        ],
+        "member-access": true,
+        "only-arrow-functions": [
+            true,
+            "allow-declarations",
+            "allow-named-functions"
+        ],
+        "no-any": false,
+        "no-magic-numbers": false,
+        "no-non-null-assertion": false,
+        "no-null-keyword": false,
+        "no-require-imports": true,
+        "no-unbound-method": false,
+        "no-unnecessary-qualifier": false,
+        "no-use-before-declare": false,
+        "no-void-expression": false,
+        "prefer-function-over-method": false,
+        "strict-type-predicates": false,
+        "triple-equals": true,
+        "ban": [
+            true,
+            [
+                "describe",
+                "only"
+            ],
+            [
+                "it",
+                "only"
+            ]
+        ],
+        "interface-name": [
+            true
+        ],
+        "file-header": [
+            false
+        ],
+        "max-classes-per-file": [
+            false
+        ],
+        "max-line-length": [
+            true,
+            300
+        ],
+        "no-console": [
+            true,
+            "debug",
+            "info",
+            "trace"
+        ],
+        "no-switch-case-fall-through": true,
+        "strict-boolean-expressions": [
+            true,
+            "allow-boolean-or-undefined",
+            "allow-null-union",
+            "allow-undefined-union"
+        ],
+        "switch-default": false,
+        "variable-name": [
+            true,
+            "ban-keywords",
+            "check-format",
+            "allow-leading-underscore",
+            "allow-pascal-case"
+        ]
+    }
+}

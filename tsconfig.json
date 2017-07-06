@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "noResolve": false,
+    "removeComments": false,
+    "module": "commonjs",
+    "diagnostics": true,
+    "sourceMap": false,
+    "target": "ES5",
+    "jsx": "react",
+    "declaration": true,
+    "moduleResolution": "node",
+    "lib": [ "dom", "es2015", "es2015.promise" ],
+    "typeRoots": [ "./node_modules/@types" ]
+  },
+  "include": [
+    "./"
+  ],
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist"
+  ]
+}
