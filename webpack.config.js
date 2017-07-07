@@ -3,7 +3,6 @@ var path = require('path');
 
 module.exports = {
     entry: './src/index.ts',
-    devtool: "source-map",
     output: {
         path: path.resolve(__dirname, "dist"),
         filename: 'message-bus-async.js',
