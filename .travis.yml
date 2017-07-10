@@ -4,3 +4,6 @@ node_js:
 script: 
     - npm run build
     - npm run test
+after_script:
+    - npm install codeclimate-test-reporter -g
+    - codeclimate-test-reporter < **/*lcov.info
