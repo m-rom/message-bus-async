@@ -96,7 +96,7 @@ export class MessageBusManager {
      * @param {string} topic The topic on which the receiver should be informed
      * @param {*} data The data which should be published to all subscribers
      */
-    public publishAll(topic: string, data: any): void {
+    public publishAll<TData>(topic: string, data: TData): void {
 
         if (isNullOrEmpty(topic)) {
             throw new ArgumentNullException('topic');
