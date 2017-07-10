@@ -1,14 +1,14 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "name": "message-bus-async",
   "main": "index.js",
   "private": false,
-  "description": "",
+  "description": "Communication between objects and components",
   "repository": {
-    "url": "",
-    "type": ""
+    "url": "https://github.com/m-rom/message-bus-async",
+    "type": "git"
   },
-  "license": "",
+  "license": "Apache License 2.0",
   "dependencies": {
     "@types/jest": "20.0.1",
     "babel-core": "6.25.0",
