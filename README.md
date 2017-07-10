@@ -1,6 +1,7 @@
 # MessageBusAsync Library
 
 Very loose coupling between two or more JavaScript / TypeScript objects
+[![Build Status](https://travis-ci.org/m-rom/message-bus-async.svg?branch=master)](https://travis-ci.org/m-rom/message-bus-async)
 
 ## Install
 ```
