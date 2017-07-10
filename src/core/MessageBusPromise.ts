@@ -1,6 +1,6 @@
 
 import { IMessageBus } from '../types/IMessageBus';
-import { createGUID, isNullOrUndefined, ArgumentException, ArgumentNullException } from '../common/common';
+import { createGUID, isNullOrUndefined, ArgumentException, ArgumentNullException, TimeoutException } from '../common/common';
 import { Promise } from 'es6-promise';
 
 export class MessageBusPromise<TData, TResult> {
@@ -10,6 +10,8 @@ export class MessageBusPromise<TData, TResult> {
     private _useSync: boolean = false;
     private _data: TData = null;
     private _topic: string = '';
+    private _doLog: boolean = false;
+    private _logger: any = console;
 
     constructor(messageBus: IMessageBus, topic: string, data: TData, useSync?: boolean, timeout?: number) {
 
@@ -22,9 +24,11 @@ export class MessageBusPromise<TData, TResult> {
         if (isNullOrUndefined(topic)) {
             throw new ArgumentNullException('topic');
         }
+        /* istanbul ignore next */
         if (isNullOrUndefined(timeout) || timeout < 0) {
             timeout = 30000;
         }
+        /* istanbul ignore next */
         if (isNullOrUndefined(useSync)) {
             useSync = false;
         }
@@ -51,13 +55,16 @@ export class MessageBusPromise<TData, TResult> {
                 if (!isNullOrUndefined(timeoutFunc)) {
                     clearTimeout(timeoutFunc);
                 }
+                this.log('Received data: ');
+                this.log(data);
                 resolve(data);
             }
         }
         this._messageBus.subscribe(receiverTopicSuccess, receiver);
         timeoutFunc = this.runAsync(() => {
+            this.error('Timeout (' + this._timeout + '): ' + this._topic);
             this._messageBus.unsubscribe(receiverTopicSuccess, receiver);
-            reject(null);
+            reject(new TimeoutException(this._timeout, this._topic));
         });
 
         const data = Object.assign({}, this._data, {
@@ -66,11 +73,54 @@ export class MessageBusPromise<TData, TResult> {
         this._messageBus.publish(this._topic, data);
     };
 
+    /* istanbul ignore next */
+    private log(message: string | any) {
+        if (this._doLog !== true) {
+            return;
+        }
+        if (isNullOrUndefined(this._logger)) {
+            throw new ArgumentException('logger');
+        }
+        if (!isNullOrUndefined(this._logger.log)) {
+            this._logger.log(message);
+        }
+    }
+
+    /* istanbul ignore next */
+    private warn(message: string) {
+        if (this._doLog !== true) {
+            return;
+        }
+        if (isNullOrUndefined(this._logger)) {
+            throw new ArgumentException('logger');
+        }
+        if (!isNullOrUndefined(this._logger.warn)) {
+            this._logger.warn(message);
+        }
+    }
+
+    /* istanbul ignore next */
+    private error(message: string) {
+        if (this._doLog !== true) {
+            return;
+        }
+        if (isNullOrUndefined(this._logger)) {
+            throw new ArgumentException('logger');
+        }
+        if (!isNullOrUndefined(this._logger.error)) {
+            this._logger.error(message);
+        }
+    }
+
+    /* istanbul ignore next */
     private runAsync = (func: () => void) => {
         if (this._useSync === false) {
             return setTimeout(() => {
                 func();
             }, this._timeout);
+        } else {
+            this.warn('Running in sync. Do not do this in production!');
+            func();
         }
     };
 }

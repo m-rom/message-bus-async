@@ -25,6 +25,15 @@ export const isNullOrEmpty = (obj: string | Array<any>): boolean => {
 };
 
 /**
+* Checks if the object is really an object
+* @param {*} obj The object which should be tested
+* @returns {boolean}
+*/
+export const isObject = (obj: any): boolean => {
+    return !isNullOrUndefined(obj) && typeof (obj) === 'object' && isNullOrUndefined(obj.push);
+};
+
+/**
 * Checks if the func is really a function
 * @param {*} func The function which should be tested
 * @returns {boolean}
@@ -53,3 +62,4 @@ export const isString = (str: any): boolean => {
 
 export { ArgumentNullException } from './exceptions/ArgumentNullException';
 export { ArgumentException } from './exceptions/ArgumentException';
+export { TimeoutException } from './exceptions/TimeoutException';

@@ -11,7 +11,7 @@ describe('Core: MessageBus', () => {
 
     beforeEach(() => {
         data = null;
-        bus = new MessageBus(true);
+        bus = new MessageBus(true, 0, true);
         bus.subscribe('Test', {
             receive: (d: any) => {
                 data = d;

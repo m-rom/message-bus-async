@@ -14,6 +14,8 @@ export class MessageBusPromiseReceiver<TData extends IData, TResult> implements 
     private _useSync: boolean = false;
     private _promise: Promise<TResult>;
     private _backTopic: string = '';
+    private _doLog: boolean = false;
+    private _logger: any = console;
 
     constructor(messageBus: IMessageBus, topic: string, promise: Promise<TResult>, useSync?: boolean, timeout?: number) {
 
@@ -46,12 +48,53 @@ export class MessageBusPromiseReceiver<TData extends IData, TResult> implements 
         })
     }
 
+    /* istanbul ignore next */
+    private log(message: string | any) {
+        if (this._doLog !== true) {
+            return;
+        }
+        if (isNullOrUndefined(this._logger)) {
+            throw new ArgumentException('logger');
+        }
+        if (!isNullOrUndefined(this._logger.log)) {
+            this._logger.log(message);
+        }
+    }
+
+    /* istanbul ignore next */
+    private warn(message: string) {
+        if (this._doLog !== true) {
+            return;
+        }
+        if (isNullOrUndefined(this._logger)) {
+            throw new ArgumentException('logger');
+        }
+        if (!isNullOrUndefined(this._logger.warn)) {
+            this._logger.warn(message);
+        }
+    }
+
+    /* istanbul ignore next */
+    private error(message: string) {
+        if (this._doLog !== true) {
+            return;
+        }
+        if (isNullOrUndefined(this._logger)) {
+            throw new ArgumentException('logger');
+        }
+        if (!isNullOrUndefined(this._logger.error)) {
+            this._logger.error(message);
+        }
+    }
+
+    /* istanbul ignore next */
     private runAsync = (func: () => void) => {
         if (this._useSync === false) {
             setTimeout(() => {
                 func();
             }, 0);
         } else {
+            this.warn('Running in sync. Do not do this in production!');
             func();
         }
     };
