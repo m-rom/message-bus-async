@@ -1,5 +1,5 @@
 ﻿
-import { isNullOrEmpty, ArgumentNullException, isNullOrUndefined, isFunction, isArray } from '../common/common';
+import { isNullOrEmpty, ArgumentException, ArgumentNullException, isNullOrUndefined, isFunction, isArray } from '../common/common';
 import { IMessageBus } from '../types/IMessageBus';
 import { IMessageBusReceiver } from '../types/IMessageBusReceiver';
 
@@ -9,12 +9,13 @@ type TopicsMap = {
 
 export class MessageBus implements IMessageBus {
 
-    private doLog: boolean = false;
-    private topics: TopicsMap = {};
-    private useSync: boolean = false;
-    private delay: number = 0;
+    private _doLog: boolean = false;
+    private _topics: TopicsMap = {};
+    private _useSync: boolean = false;
+    private _delay: number = 0;
+    private _logger: any = console;
 
-    constructor(useSync?: boolean, delay?: number) {
+    constructor(useSync?: boolean, delay?: number, enableLogging?: boolean, logger?: any) {
         /* istanbul ignore next */
         if (isNullOrUndefined(useSync)) {
             useSync = false;
@@ -23,17 +24,24 @@ export class MessageBus implements IMessageBus {
         if (isNullOrUndefined(delay)) {
             delay = 0;
         }
-        this.useSync = useSync;
-        this.delay = delay;
+        /* istanbul ignore next */
+        if (isNullOrUndefined(enableLogging)) {
+            enableLogging = false;
+        }
+        /* istanbul ignore next */
+        if (isNullOrUndefined(logger)) {
+            logger = console;
+        }
+        this._useSync = useSync;
+        this._delay = delay;
+        this._doLog = enableLogging;
+        this._logger = logger;
     }
 
     public subscribe(topic: string, receiver: IMessageBusReceiver) {
 
-        /* istanbul ignore next */
-        if (this.doLog === true) {
-            console.warn('Subscribe to topic: ' + topic);
-            console.log(receiver);
-        }
+        this.warn('Subscribe to topic: ' + topic);
+        this.log(receiver);
 
         if (isNullOrEmpty(topic)) {
             throw new ArgumentNullException('topic');
@@ -42,20 +50,17 @@ export class MessageBus implements IMessageBus {
             throw new ArgumentNullException('receiver');
         }
 
-        if (!this.topics[topic]) {
-            this.topics[topic] = [receiver];
+        if (!this._topics[topic]) {
+            this._topics[topic] = [receiver];
         } else {
-            this.topics[topic].push(receiver);
+            this._topics[topic].push(receiver);
         }
     }
 
     public unsubscribe(topic: string, receiver: IMessageBusReceiver): IMessageBusReceiver {
 
-        /* istanbul ignore next */
-        if (this.doLog === true) {
-            console.warn('Unsubscribe to topic: ' + topic);
-            console.log(receiver);
-        }
+        this.warn('Unsubscribe to topic: ' + topic);
+        this.log(receiver);
 
         if (isNullOrEmpty(topic)) {
             throw new ArgumentNullException('topic');
@@ -64,9 +69,9 @@ export class MessageBus implements IMessageBus {
             throw new ArgumentNullException('receiver');
         }
 
-        if (!isNullOrUndefined(this.topics[topic]
-            && isArray(this.topics[topic]))) {
-            const map = this.topics[topic];
+        if (!isNullOrUndefined(this._topics[topic]
+            && isArray(this._topics[topic]))) {
+            const map = this._topics[topic];
             for (let i = 0; i < map.length; i++) {
                 if (map[i] === receiver) {
                     return map.splice(i, 1)[0] as IMessageBusReceiver;
@@ -74,21 +79,16 @@ export class MessageBus implements IMessageBus {
             }
         }
 
-        if (this.doLog === true) {
-            console.warn('Unsubscribe failed: ' + topic);
-            console.log(receiver);
-        }
+        this.warn('Unsubscribe failed: ' + topic);
+        this.log(receiver);
 
         return null;
     }
 
     public publish(topic: string, data: any) {
 
-        /* istanbul ignore next */
-        if (this.doLog === true) {
-            console.warn('Publish to topic: ' + topic);
-            console.log(data);
-        }
+        this.warn('Publish to topic: ' + topic);
+        this.log(data);
 
         if (isNullOrEmpty(topic)) {
             throw new ArgumentNullException('topic');
@@ -97,11 +97,11 @@ export class MessageBus implements IMessageBus {
             throw new ArgumentNullException('data');
         }
 
-        if (isNullOrEmpty(this.topics[topic])) {
+        if (isNullOrEmpty(this._topics[topic])) {
             return;
         }
 
-        this.topics[topic].forEach((receiver) => {
+        this._topics[topic].forEach((receiver) => {
             if (!isNullOrUndefined(receiver) && isFunction(receiver.receive)) {
                 // ensure to run async
                 this.runAsync(() => {
@@ -109,21 +109,59 @@ export class MessageBus implements IMessageBus {
                 });
             } else {
                 /* istanbul ignore next */
-                if (console && console.error) {
-                    console.error('The receiver is null or does not implement IMessageBusReceiver');
-                }
+                this.error('The receiver is undefined or does not implement IMessageBusReceiver');
             }
         });
     }
 
     /* istanbul ignore next */
+    private log(message: string | any) {
+        if (this._doLog !== true) {
+            return;
+        }
+        if (isNullOrUndefined(this._logger)) {
+            throw new ArgumentException('logger');
+        }
+        if (!isNullOrUndefined(this._logger.log)) {
+            this._logger.log(message);
+        }
+    }
+
+    /* istanbul ignore next */
+    private warn(message: string) {
+        if (this._doLog !== true) {
+            return;
+        }
+        if (isNullOrUndefined(this._logger)) {
+            throw new ArgumentException('logger');
+        }
+        if (!isNullOrUndefined(this._logger.warn)) {
+            this._logger.warn(message);
+        }
+    }
+
+    /* istanbul ignore next */
+    private error(message: string) {
+        if (this._doLog !== true) {
+            return;
+        }
+        if (isNullOrUndefined(this._logger)) {
+            throw new ArgumentException('logger');
+        }
+        if (!isNullOrUndefined(this._logger.error)) {
+            this._logger.error(message);
+        }
+    }
+
+    /* istanbul ignore next */
     private runAsync(func: () => void) {
-        if (this.useSync === true) {
+        if (this._useSync === true) {
+            this.warn('Running in sync. Do not do this in production!');
             func();
         } else {
             setTimeout(() => {
                 func();
-            }, this.delay);
+            }, this._delay);
         }
     }
 }

@@ -1,5 +1,5 @@
 
-import { isNullOrUndefined, isNullOrEmpty, isFunction, isArray } from '../src/common/common';
+import { isNullOrUndefined, isNullOrEmpty, isString, isObject, isFunction, isArray } from '../src/common/common';
 
 describe('Common methods tests', () => {
 
@@ -58,5 +58,29 @@ describe('Common methods tests', () => {
         expect(isArray({})).toBe(false);
         expect(isArray('1')).toBe(false);
         expect(isArray(1.1)).toBe(false);
+    });
+
+    it('isObject', () => {
+        expect(isObject([])).toBe(false);
+        expect(isObject({})).toBe(true);
+
+        expect(isObject(() => {})).toBe(false);
+        expect(isObject(undefined)).toBe(false);
+        expect(isObject(null)).toBe(false);
+        expect(isObject('')).toBe(false);
+        expect(isObject('1')).toBe(false);
+        expect(isObject(1.1)).toBe(false);
+    });
+
+    it('isString', () => {
+        expect(isString([])).toBe(false);
+        expect(isString({})).toBe(false);
+
+        expect(isString(() => {})).toBe(false);
+        expect(isString(undefined)).toBe(false);
+        expect(isString(null)).toBe(false);
+        expect(isString('')).toBe(true);
+        expect(isString('1')).toBe(true);
+        expect(isString(1.1)).toBe(false);
     });
 });
