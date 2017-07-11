@@ -5,6 +5,7 @@ import { IMessageBusReceiver } from '../types/IMessageBusReceiver';
 import { MessageBus } from './MessageBus';
 import { MessageBusPromise } from './MessageBusPromise';
 import { Promise } from 'es6-promise';
+import { MessageBusPromiseReceiver } from './MessageBusPromiseReceiver';
 
 export class MessageBusManager {
 
@@ -135,5 +136,26 @@ export class MessageBusManager {
         const mb = this.getMessageBus();
         const promise = new MessageBusPromise<TData, TResult>(mb, topic, data, useSync, timeout);
         return promise.send();
+    }
+
+    /**
+     * Creates the MessageBusPromiseReceiver
+     * 
+     * @param {string} topic The topic on which the receiver should be informed
+     * @param {function} promiseCreator The creator to create a promise, which is used to execute to send result back on bus.
+     * @param {number} timeout (optional) Timeout to wait for a response
+     */
+    public registerPromiseReceiver<TResult>(topic: string, promiseCreator: () => Promise<TResult>, timeout?: number, useSync?: boolean): MessageBusPromiseReceiver<any, TResult> {
+
+        if (isNullOrEmpty(topic)) {
+            throw new ArgumentNullException('topic');
+        }
+        if (isNullOrUndefined(promiseCreator)) {
+            throw new ArgumentNullException('promiseCreator');
+        }
+
+        const mb = this.getMessageBus();
+        const receiver = new MessageBusPromiseReceiver<any, TResult>(mb, topic, promiseCreator, useSync, timeout);
+        return receiver;
     }
 }

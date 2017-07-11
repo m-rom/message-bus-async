@@ -12,12 +12,12 @@ export class MessageBusPromiseReceiver<TData extends IData, TResult> implements 
 
     private _messageBus: IMessageBus = null;
     private _useSync: boolean = false;
-    private _promise: Promise<TResult>;
+    private _promiseCreator: () => Promise<TResult>;
     private _backTopic: string = '';
     private _doLog: boolean = false;
     private _logger: any = console;
 
-    constructor(messageBus: IMessageBus, topic: string, promise: Promise<TResult>, useSync?: boolean, timeout?: number) {
+    constructor(messageBus: IMessageBus, topic: string, promiseCreator: () => Promise<TResult>, useSync?: boolean, timeout?: number) {
 
         if (isNullOrUndefined(messageBus)) {
             throw new ArgumentNullException('messageBus');
@@ -32,7 +32,7 @@ export class MessageBusPromiseReceiver<TData extends IData, TResult> implements 
             useSync = false;
         }
         this._useSync = useSync;
-        this._promise = promise;
+        this._promiseCreator = promiseCreator;
         this._messageBus = messageBus;
         this._messageBus.subscribe(topic, this);
     };
@@ -40,7 +40,7 @@ export class MessageBusPromiseReceiver<TData extends IData, TResult> implements 
     public receive = (data: TData) => {
         const backTopic = data.__sender;
         this.runAsync(() => {
-            this._promise.then((data: TResult) => {
+            this._promiseCreator().then((data: TResult) => {
                 this._messageBus.publish(backTopic, data);
             }, (err: any) => {
                 this._messageBus.publish(backTopic, err);
