@@ -145,7 +145,7 @@ export class MessageBusManager {
      * @param {function} promiseCreator The creator to create a promise, which is used to execute to send result back on bus.
      * @param {number} timeout (optional) Timeout to wait for a response
      */
-    public registerPromiseReceiver<TResult>(topic: string, promiseCreator: (data?: any) => Promise<TResult>, timeout?: number, useSync?: boolean): MessageBusPromiseReceiver<any, TResult> {
+    public registerPromiseReceiver<TResult>(topic: string, promiseCreator: (message?: any) => Promise<TResult>, timeout?: number, useSync?: boolean): MessageBusPromiseReceiver<any, TResult> {
 
         if (isNullOrEmpty(topic)) {
             throw new ArgumentNullException('topic');
