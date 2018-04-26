@@ -5,6 +5,7 @@ import { Promise } from 'es6-promise';
 import { IMessageBusReceiver } from '../types/IMessageBusReceiver';
 
 export interface IData {
+    message?: any;
     __sender: string;
 }
 
@@ -12,12 +13,12 @@ export class MessageBusPromiseReceiver<TData extends IData, TResult> implements 
 
     private _messageBus: IMessageBus = null;
     private _useSync: boolean = false;
-    private _promiseCreator: () => Promise<TResult>;
+    private _promiseCreator: (message) => Promise<TResult>;
     private _backTopic: string = '';
     private _doLog: boolean = false;
     private _logger: any = console;
 
-    constructor(messageBus: IMessageBus, topic: string, promiseCreator: () => Promise<TResult>, useSync?: boolean, timeout?: number) {
+    constructor(messageBus: IMessageBus, topic: string, promiseCreator: (message: any) => Promise<TResult>, useSync?: boolean, timeout?: number) {
 
         if (isNullOrUndefined(messageBus)) {
             throw new ArgumentNullException('messageBus');
@@ -39,8 +40,9 @@ export class MessageBusPromiseReceiver<TData extends IData, TResult> implements 
 
     public receive = (data: TData) => {
         const backTopic = data.__sender;
-        this.runAsync(() => {
-            this._promiseCreator().then((data: TResult) => {
+        const message = data.message;
+        this.runAsync(message, (message) => {
+            this._promiseCreator(message).then((data: TResult) => {
                 this._messageBus.publish(backTopic, data);
             }, (err: any) => {
                 this._messageBus.publish(backTopic, err);
@@ -88,14 +90,14 @@ export class MessageBusPromiseReceiver<TData extends IData, TResult> implements 
     }
 
     /* istanbul ignore next */
-    private runAsync = (func: () => void) => {
+    private runAsync = (message, func: (message?: any) => void) => {
         if (this._useSync === false) {
             setTimeout(() => {
-                func();
+                func(message);
             }, 0);
         } else {
             this.warn('Running in sync. Do not do this in production!');
-            func();
+            func(message);
         }
     };
 }
