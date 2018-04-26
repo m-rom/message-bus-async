@@ -68,6 +68,7 @@ export class MessageBusPromise<TData, TResult> {
         });
 
         const data = Object.assign({}, this._data, {
+            message: this._data,
             __sender: receiverTopicSuccess
         });
         this._messageBus.publish(this._topic, data);
